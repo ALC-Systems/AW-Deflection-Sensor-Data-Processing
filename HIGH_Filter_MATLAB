@@ -1,0 +1,93 @@
+clear
+clc
+close all
+% Cycle 7-1-H1
+A = xlsread('Cycle7-1-H1');
+A3 = A(:,3);
+Time = linspace(0,length(A3),length(A3));
+plot (Time,A3);
+title('Cycle 7-1-H1');
+grid on
+xlabel('Time')
+ylabel('Voltage')
+
+% initial filtering
+
+j=1;
+
+for i = 1:length(A3)
+    if i==1
+        A3Filtered(i) = A3(i);
+    elseif i>1
+        if A3(i)<A3(i-1)
+            j=j;
+        else
+            A3Filtered(j) = A3(i);
+            j=j+1;
+        end
+    end
+end
+% figure
+TimeFiltered = linspace(0,length(A3),length(A3Filtered));
+% plot (TimeFiltered,A3Filtered);
+% title('Initial Filtering')
+% grid on
+
+%for numloop = 5:10:50
+%for numloop = 50:20:150
+% iterative filtering
+%numloop = input('How many iterations?\n');  % type in 105 for this one
+numloop = 105;
+Iteration = A3Filtered;
+for k=1:numloop
+    buffer = [];
+    i=1;
+    j=1;
+    for i = 1:length(Iteration)
+        if i==1
+            buffer(i) = Iteration(i);
+        elseif i>1
+            if Iteration(i) < Iteration(i-1)
+                j=j;
+            else
+                buffer(j) = Iteration(i);
+                j=j+1;
+            end
+        end
+    end
+    Iteration = buffer;
+end
+
+TimeFiltered2 = linspace(0,length(A3),length(Iteration));
+figure
+plot (TimeFiltered2,Iteration);
+title(['Filtered Data After ' num2str(numloop) ' Iterations'])
+grid on
+xlabel('Time')
+ylabel('Voltage')
+hold on
+%end
+%%%%%% keep between 2 and 7 10^5 for sure
+i = 1;
+flag = 1;
+while flag == 1
+for i = 1:length(Iteration)
+    if Iteration(i)>3.2
+        index = i;
+        plot(TimeFiltered2(i),Iteration(i),'ro')
+        flag = 0;
+    end
+end
+end
+
+p = polyfit(TimeFiltered2,Iteration,2);
+
+y1 = polyval(p,Time);
+hold on
+plot(Time,y1,'r')
+grid on
+
+
+
+
+
